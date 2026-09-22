@@ -29,5 +29,6 @@ jobs:
       - name: Avviso prezzo
         if: hashFiles('ALERT.md') != ''
         env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh issue create --title "Volo MIL-BUE: prezzo $(date +%F)" --body-file ALERT.md
+          GH_TOKEN: ${{ github.token }}        
+                  run: |
+          gh issue create --title "Volo MIL-BUE - prezzo $(date +%F)" --body-file ALERT.md
