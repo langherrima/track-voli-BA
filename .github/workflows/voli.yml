@@ -25,6 +25,7 @@ jobs:
           git config user.email "github-actions@users.noreply.github.com"
           git add storico_prezzi.csv
           git commit -m "prezzo $(date +%F)" || true
+          git pull --rebase
           git push
       - name: Avviso prezzo
         if: hashFiles('ALERT.md') != ''
