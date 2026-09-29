@@ -33,7 +33,8 @@ if not voli:
     raise SystemExit("Nessun volo restituito per queste date.")
 target = [v for v in voli if any(f.get("flight_number") == VOLO for f in v["flights"])]
 p_target = min((v["price"] for v in target), default=None)
-uno_scalo = [v for v in voli if len(v["flights"]) - 1 <= 1]
+MAX_ORE = float(os.environ.get("MAX_ORE", 24))
+uno_scalo = [v for v in voli if len(v["flights"]) - 1 <= 1 and v.get("total_duration", 0) / 60 <= MAX_ORE]
 best = min(uno_scalo or voli, key=lambda x: x["price"])
 livello = d.get("price_insights", {}).get("price_level", "")
 
