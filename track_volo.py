@@ -52,7 +52,7 @@ if os.path.exists(CSV_FILE):
     with open(CSV_FILE, newline="", encoding="utf-8") as f:
         storico = [{c: r.get(c, "") for c in COLONNE} for r in csv.DictReader(f)]
 prev_min = min((int(r["prezzo_volo"]) for r in storico if r["prezzo_volo"]), default=None)
-prev_prezzo = next((int(r["prezzo_volo"]) for r in reversed(storico) if r["prezzo_volo"]), None)prev_min = min((int(r["prezzo_volo"]) for r in storico if r["prezzo_volo"]), None)
+prev_prezzo = next((int(r["prezzo_volo"]) for r in reversed(storico) if r["prezzo_volo"]), None)
 storico.append(riga)
 
 with open(CSV_FILE, "w", newline="", encoding="utf-8") as f:
