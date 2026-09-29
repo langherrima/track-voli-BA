@@ -8,6 +8,7 @@ import os, csv, datetime as dt, requests
 
 API_KEY  = os.environ["SERPAPI_KEY"]
 SOGLIA   = int(os.environ.get("SOGLIA", 1450))
+CALO_PCT = float(os.environ.get("CALO_PCT", 10))
 ANDATA   = dt.date(2026, 12, 21)
 RITORNO  = dt.date(2027, 1, 12)
 VOLO     = "AR 1141"
@@ -51,6 +52,7 @@ if os.path.exists(CSV_FILE):
     with open(CSV_FILE, newline="", encoding="utf-8") as f:
         storico = [{c: r.get(c, "") for c in COLONNE} for r in csv.DictReader(f)]
 prev_min = min((int(r["prezzo_volo"]) for r in storico if r["prezzo_volo"]), default=None)
+prev_prezzo = next((int(r["prezzo_volo"]) for r in reversed(storico) if r["prezzo_volo"]), None)prev_min = min((int(r["prezzo_volo"]) for r in storico if r["prezzo_volo"]), None)
 storico.append(riga)
 
 with open(CSV_FILE, "w", newline="", encoding="utf-8") as f:
@@ -62,9 +64,13 @@ print(f"{oggi}: {VOLO} = {p_target} EUR | minimo giorno = {riga['prezzo_min_gior
 
 if p_target is None:
     open("ALERT.md", "w").write(f"Il volo {VOLO} non compare nei risultati del {oggi}. Minimo del giorno: {riga['prezzo_min_giorno']} EUR.")
-elif p_target <= SOGLIA and (prev_min is None or p_target < prev_min):
-    open("ALERT.md", "w").write(
-        f"Prezzo sceso a {p_target} EUR (soglia {SOGLIA} EUR, minimo precedente {prev_min} EUR).\n\n"
-        f"Andata {ANDATA} {VOLO} via FCO, ritorno {RITORNO}. Livello Google: {livello}.\n\n"
-        f"Minimo del giorno: {riga['prezzo_min_giorno']} EUR - {riga['min_compagnie']}, "
-        f"{riga['min_scali']} scali, {riga['min_durata_h']} h, da {riga['min_partenza']}.")
+elif p_target is not None:
+    calo = (prev_prezzo - p_target) / prev_prezzo * 100 if prev_prezzo else 0
+    nuovo_min = prev_min is None or p_target < prev_min
+    if calo >= CALO_PCT or (p_target <= SOGLIA and nuovo_min):
+        open("ALERT.md", "w").write(
+            f"{VOLO} a {p_target} EUR: calo del {calo:.1f}% rispetto a {prev_prezzo} EUR "
+            f"(minimo storico {prev_min} EUR, soglia {SOGLIA} EUR).\n\n"
+            f"Andata {ANDATA} via FCO, ritorno {RITORNO}. Livello Google: {livello}.\n\n"
+            f"Minimo del giorno con max 1 scalo: {riga['prezzo_min_giorno']} EUR - {riga['min_compagnie']}, "
+            f"{riga['min_scali']} scali, {riga['min_durata_h']} h, da {riga['min_partenza']}.")
