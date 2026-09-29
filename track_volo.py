@@ -32,7 +32,8 @@ if not voli:
     raise SystemExit("Nessun volo restituito per queste date.")
 target = [v for v in voli if any(f.get("flight_number") == VOLO for f in v["flights"])]
 p_target = min((v["price"] for v in target), default=None)
-best = min(voli, key=lambda x: x["price"])
+uno_scalo = [v for v in voli if len(v["flights"]) - 1 <= 1]
+best = min(uno_scalo or voli, key=lambda x: x["price"])
 livello = d.get("price_insights", {}).get("price_level", "")
 
 riga = {
