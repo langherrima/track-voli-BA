@@ -1,7 +1,5 @@
 name: Monitor volo MIL-BUE
 on:
-  schedule:
-    - cron: "0 6 * * *"   # 07:00 ora italiana (UTC+1)
   workflow_dispatch:       # avvio manuale dalla tab Actions
 permissions:
   contents: write
